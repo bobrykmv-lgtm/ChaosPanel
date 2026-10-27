@@ -1,0 +1,20 @@
+name: ChaosPanel
+version: 1.0.0
+main: com.chaossmp.chaospanel.ChaosPanel
+api-version: '1.21'
+author: MCG Games
+description: ChaosSMP administration and monitoring panel
+
+commands:
+co:
+description: Главная команда ChaosPanel
+usage: /co
+permission: chaospanel.use
+
+permissions:
+chaospanel.use:
+description: Доступ к панели ChaosPanel
+default: op
+chaospanel.admin:
+description: Полный доступ к функциям ChaosPanel
+default: op

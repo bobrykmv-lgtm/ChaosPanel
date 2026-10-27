@@ -7,7 +7,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ChaosPanel extends JavaPlugin {
 
-```
 private String prefix;
 
 @Override
@@ -73,6 +72,5 @@ public boolean onCommand(
             + "Неизвестная команда. Используйте /co help.");
     return true;
 }
-```
 
 }

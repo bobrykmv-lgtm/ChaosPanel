@@ -6,9 +6,9 @@ author: W1nUser
 description: ChaosSMP administration and monitoring panel
 
 commands:
-co:
+ownerpanel:
 description: Главная команда ChaosPanel
-usage: /cp
+usage: /ownerpanel
 permission: chaospanel.use
 
 permissions:

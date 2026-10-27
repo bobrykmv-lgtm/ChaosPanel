@@ -1,0 +1,37 @@
+# Настройки ChaosPanel
+
+settings:
+language: ru
+prefix: "&8[&bChaosPanel&8] "
+
+# Smart Alerts
+
+alerts:
+enabled: true
+check-interval-seconds: 30
+minimum-tps: 18.0
+maximum-mspt: 50.0
+maximum-ram-percent: 90
+maximum-entities-per-world: 1500
+cooldown-seconds: 120
+
+# Server History
+
+history:
+enabled: true
+retention-days: 30
+
+# Player Inspector
+
+player-inspector:
+enabled: true
+show-coordinates: true
+show-ping: true
+show-session-time: true
+
+# Teleport
+
+teleport:
+enabled: true
+require-confirmation: true
+log-teleports: true

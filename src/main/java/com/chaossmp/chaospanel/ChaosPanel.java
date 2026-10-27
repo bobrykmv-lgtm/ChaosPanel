@@ -36,7 +36,7 @@ public boolean onCommand(
         String label,
         String[] args
 ) {
-    if (!command.getName().equalsIgnoreCase("co")) {
+    if (!command.getName().equalsIgnoreCase("ownerpanel")) {
         return false;
     }
 

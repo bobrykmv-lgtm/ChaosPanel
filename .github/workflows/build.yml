@@ -1,17 +1,9 @@
 name: Build ChaosPanel
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-permissions:
-  contents: read
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Download source
       uses: actions/checkout@v4
@@ -25,14 +17,12 @@ jobs:
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Build plugin
-      run: ./gradlew build
+    - name: Build ChaosPanel
+      run: gradle clean build
 
     - name: Upload plugin
       uses: actions/upload-artifact@v4
       with:
-        name: ChaosPanel-Artifact
+        name: ChaosPanel-1.0.0
         path: build/libs/*.jar
+        if-no-files-found: error

@@ -1,37 +1,17 @@
-# Настройки ChaosPanel
-
 settings:
-language: ru
-prefix: "&8[&bChaosPanel&8] "
+  prefix: "&8[&bChaosPanel&8] "
+  monitoring-update-interval: 40
+  logs-file-name: "logs.yml"
 
-# Smart Alerts
+modules:
+  monitoring: true
+  player-inspector: true
+  player-management: true
+  world-management: true
+  history: true
 
-alerts:
-enabled: true
-check-interval-seconds: 30
-minimum-tps: 18.0
-maximum-mspt: 50.0
-maximum-ram-percent: 90
-maximum-entities-per-world: 1500
-cooldown-seconds: 120
-
-# Server History
-
-history:
-enabled: true
-retention-days: 30
-
-# Player Inspector
-
-player-inspector:
-enabled: true
-show-coordinates: true
-show-ping: true
-show-session-time: true
-
-# Teleport
-
-teleport:
-enabled: true
-require-confirmation: true
-log-teleports: true
+integration:
+  ban-command: "ban {player} {reason} -s"
+  unban-command: "pardon {player}"
+  mute-command: "mute {player} {reason}"
+  unmute-command: "unmute {player}"

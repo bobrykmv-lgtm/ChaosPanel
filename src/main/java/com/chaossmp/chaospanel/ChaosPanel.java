@@ -8,16 +8,13 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationContext;
-import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.conversations.Prompt;
-import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,9 +22,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public final class ChaosPanel extends JavaPlugin implements Listener {
@@ -36,6 +31,9 @@ public final class ChaosPanel extends JavaPlugin implements Listener {
     private LogManager logManager;
     private BukkitTask updateTask;
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]{3,16}$");
+    
+    // Зберігання гравців, які очікують введення ніку для офлайн-розбану
+    private final Set<UUID> awaitingOfflineUnban = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -354,51 +352,47 @@ public final class ChaosPanel extends JavaPlugin implements Listener {
     private void promptForOfflineUnban(Player player) {
         if (!checkAccess(player, "player-management", "chaospanel.punish")) return;
         player.closeInventory();
+        awaitingOfflineUnban.add(player.getUniqueId());
         player.sendMessage(ChatColor.YELLOW + "Введите ник игрока для разбана в чат (или 'cancel' для отмены):");
+    }
 
-        ConversationFactory factory = new ConversationFactory(this)
-                .withModality(true)
-                .withFirstPrompt(new StringPrompt() {
-                    @Override
-                    public String getPromptText(ConversationContext context) {
-                        return "";
-                    }
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        if (!awaitingOfflineUnban.contains(player.getUniqueId())) {
+            return;
+        }
 
-                    @Override
-                    public Prompt acceptInput(ConversationContext context, String input) {
-                        if (input == null || input.equalsIgnoreCase("cancel")) {
-                            player.sendMessage(ChatColor.RED + "Отменено.");
-                            Bukkit.getScheduler().runTask(ChaosPanel.this, () -> openPlayerListMenu(player, 0));
-                            return END_OF_CONVERSATION;
-                        }
+        event.setCancelled(true);
+        awaitingOfflineUnban.remove(player.getUniqueId());
 
-                        String name = input.trim();
-                        if (!NICKNAME_PATTERN.matcher(name).matches()) {
-                            player.sendMessage(ChatColor.RED + "Некорректный формат никнейма (только буквы, цифры и _ от 3 до 16 символов).");
-                            Bukkit.getScheduler().runTask(ChaosPanel.this, () -> openPlayerListMenu(player, 0));
-                            return END_OF_CONVERSATION;
-                        }
+        String input = event.getMessage().trim();
 
-                        Bukkit.getScheduler().runTask(ChaosPanel.this, () -> {
-                            ChaosPanelHolder holder = new ChaosPanelHolder(ChaosPanelHolder.MenuType.CONFIRM_ACTION);
-                            holder.setTargetOfflineName(name);
-                            holder.setConfirmActionType(ChaosPanelHolder.ConfirmActionType.OFFLINE_UNBAN);
+        Bukkit.getScheduler().runTask(this, () -> {
+            if (input.equalsIgnoreCase("cancel")) {
+                player.sendMessage(ChatColor.RED + "Отменено.");
+                openPlayerListMenu(player, 0);
+                return;
+            }
 
-                            Inventory inv = Bukkit.createInventory(holder, 27, ChatColor.DARK_RED + "Разбан: " + name);
-                            holder.setInventory(inv);
+            if (!NICKNAME_PATTERN.matcher(input).matches()) {
+                player.sendMessage(ChatColor.RED + "Некорректный формат никнейма (только буквы, цифры и _ от 3 до 16 символов).");
+                openPlayerListMenu(player, 0);
+                return;
+            }
 
-                            addItem(inv, 11, Material.LIME_WOOL, "&aПодтвердить", "&7Разбанить " + name);
-                            addItem(inv, 15, Material.RED_WOOL, "&cОтмена", "&7Назад");
+            ChaosPanelHolder holder = new ChaosPanelHolder(ChaosPanelHolder.MenuType.CONFIRM_ACTION);
+            holder.setTargetOfflineName(input);
+            holder.setConfirmActionType(ChaosPanelHolder.ConfirmActionType.OFFLINE_UNBAN);
 
-                            player.openInventory(inv);
-                        });
-                        return END_OF_CONVERSATION;
-                    }
-                })
-                .withLocalEcho(false);
+            Inventory inv = Bukkit.createInventory(holder, 27, ChatColor.DARK_RED + "Разбан: " + input);
+            holder.setInventory(inv);
 
-        Conversation conv = factory.buildConversation(player);
-        conv.begin();
+            addItem(inv, 11, Material.LIME_WOOL, "&aПодтвердить", "&7Разбанить " + input);
+            addItem(inv, 15, Material.RED_WOOL, "&cОтмена", "&7Назад");
+
+            player.openInventory(inv);
+        });
     }
 
     private void openWorldManagement(Player player) {
@@ -628,7 +622,7 @@ public final class ChaosPanel extends JavaPlugin implements Listener {
                     return;
                 }
                 if (target.isOnline()) {
-                    AttributeInstance maxHealthAttr = target.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+                    AttributeInstance maxHealthAttr = target.getAttribute(Attribute.MAX_HEALTH);
                     double maxHealth = maxHealthAttr != null ? maxHealthAttr.getValue() : 20.0;
                     target.setHealth(maxHealth);
                     target.setFoodLevel(20);

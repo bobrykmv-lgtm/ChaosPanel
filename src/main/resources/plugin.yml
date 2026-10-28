@@ -1,22 +1,50 @@
 name: ChaosPanel
-version: 1.0.2
+version: 1.0.4
 main: com.chaossmp.chaospanel.ChaosPanel
 api-version: '1.21'
 author: W1nUser
-description: ChaosSMP administration and monitoring panel
+description: ChaosSMP advanced administration and monitoring panel
 
 commands:
   ownerpanel:
-    description: Главная команда ChaosPanel
+    description: Главная административная панель ChaosPanel
     usage: /ownerpanel [help|status]
     permission: chaospanel.use
 
 permissions:
   chaospanel.use:
-    description: Доступ к панели ChaosPanel
+    description: Доступ к открытию базовой панели
+    default: false
+  chaospanel.monitor:
+    description: Доступ к мониторингу сервера и TPS/MSPT
+    default: true
+  chaospanel.inspect:
+    description: Доступ к инспектору игроков и просмотру инвентарей
+    default: false
+  chaospanel.teleport:
+    description: Доступ к телепортации к игрокам и координатам
+    default: false
+  chaospanel.punish:
+    description: Доступ к управлению наказаниями (бан, кик, мут)
+    default: false
+  chaospanel.heal:
+    description: Доступ к восстановлению здоровья и голода игроков
+    default: false
+  chaospanel.world:
+    description: Доступ к управлению миром, погодой и временем
+    default: false
+  chaospanel.history:
+    description: Доступ к просмотру логов и истории действий
     default: false
   chaospanel.admin:
-    description: Полный доступ к функциям ChaosPanel
+    description: Полный доступ ко всем функциям ChaosPanel
     default: false
     children:
       chaospanel.use: true
+      chaospanel.monitor: true
+      chaospanel.inspect: true
+      chaospanel.teleport: true
+      chaospanel.punish: true
+      chaospanel.heal: true
+      chaospanel.world: true
+      chaospanel.history: true

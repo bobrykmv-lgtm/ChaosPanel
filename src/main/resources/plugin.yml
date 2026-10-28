@@ -6,15 +6,17 @@ author: W1nUser
 description: ChaosSMP administration and monitoring panel
 
 commands:
-ownerpanel:
-description: Главная команда ChaosPanel
-usage: /ownerpanel
-permission: chaospanel.use
+  ownerpanel:
+    description: Главная команда ChaosPanel
+    usage: /ownerpanel [help|status]
+    permission: chaospanel.use
 
 permissions:
-chaospanel.use:
-description: Доступ к панели ChaosPanel
-default: op
-chaospanel.admin:
-description: Полный доступ к функциям ChaosPanel
-default: op
+  chaospanel.use:
+    description: Доступ к панели ChaosPanel
+    default: false
+  chaospanel.admin:
+    description: Полный доступ к функциям ChaosPanel
+    default: false
+    children:
+      chaospanel.use: true
